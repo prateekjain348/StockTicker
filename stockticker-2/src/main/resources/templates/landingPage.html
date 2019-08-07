@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+
+	<div class="gridContainer">
+		<form class="form-horizontal" th:action="@{/upload}" method="post"
+			enctype="multipart/form-data" th:object="${formUpload}">
+			<table cellspacing="10">
+				<tr>
+					<td>
+						<h3>Upload CSV File below</h3>
+					</td>
+				</tr>
+				<tr>
+					<td><input type="file" path="${fileUpload.files}"
+						multiple="multiple" th:field="*{files}"></td>
+				</tr>
+				<tr>
+					<td>
+						<button type="submit">Upload</button>
+					</td>
+				</tr>
+
+			</table>
+
+
+
+
+
+		</form>
+	</div>
+
+</body>
+</html>

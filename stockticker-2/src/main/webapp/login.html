@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Login</title>
+
+</head>
+<body>
+<form class="form-signin" th:action="@{/home}" th:object="${loginCredentialsObject}" method="post">
+	<div class="container">
+	<br>
+	<table cellspacing="10" >
+		<tr>
+			<td colspan="2" align="center"><h4>Welcome To LendBox </h4></td>			
+		</tr>
+		<tr>
+		<tr>
+			<td>UserName </td>
+			<td><input type="text" placeholder="Enter username" name="uname" required th:field="*{username}"></td>
+		</tr>
+		<tr>
+			<td>Password </td>
+			<td><input type="password" placeholder="Enter password" name="psw" required th:field="*{password}"></td>	
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<button type="submit">Login</button>
+			</td>
+		</tr>
+	</table>
+		
+		
+	</div>
+</form>
+</body>
+</html>

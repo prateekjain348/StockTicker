@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymleaf.org">
+<head>
+<title>Stock Ticker</title>
+
+<script src="http://cdn.jsdelivr.net/webjars/jquery/2.1.4/jquery.min.js"
+	th:src="@{webjars/jquery/2.1.4/jquery.min.js}"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link
+	href="http://cdn.jsdeliver.net/webjars/bootstrap/3.3.4/css/bootstrap.min.css"
+	th:href="@{/webjars/bootstrap/3.3.5/css/bootstrap.mioin.css}"
+	rel="stylesheet" media="screen" />
+<meta charset="ISO-8859-1">
+<style>
+table, td, th {
+	border: 1px solid black;
+}
+table {
+	border-collapse: collapse;
+	width: 50%;
+}
+
+th, td {
+	text-align: center;
+}
+th{
+	font-weight:bold;
+}
+
+</style>
+<script>
+$(document).ready(function(){
+  $("#refreshPage").delegate("#pressButton","click",function(){	  
+	    var data = $("#refreshPage").serialize();
+	    $.ajax({
+	        url: 'refresh',
+	        type: 'POST',
+	            data: data,
+	            contentType: "application/x-www-form-urlencoded; charset=utf-8",
+	            success: function(response) {	            	
+	            }
+	    alert(response);
+	    
+	    });
+	    event.preventDefault();
+  });
+});
+</script>
+</head>
+<body>
+<script async="async">
+$(document).ready(function() {
+
+	  function exportTableToCSV($table, filename) {
+
+	    var $rows = $table.find('tr:has(td)'),
+
+	      // Temporary delimiter characters unlikely to be typed by keyboard
+	      // This is to avoid accidentally splitting the actual contents
+	      tmpColDelim = String.fromCharCode(11), // vertical tab character
+	      tmpRowDelim = String.fromCharCode(0), // null character
+
+	      // actual delimiter characters for CSV format
+	      colDelim = ',',
+	      rowDelim = '\r\n',
+
+	      // Grab text from table into CSV formatted string
+	      csv = $rows.map(function(i, row) {
+	        var $row = $(row),
+	          $cols = $row.find('td');
+
+	        return $cols.map(function(j, col) {
+	          var $col = $(col),
+	            text = $col.text();
+
+	          return text.replace(/"/g, '""'); // escape double quotes
+
+	        }).get().join(tmpColDelim);
+
+	      }).get().join(tmpRowDelim)
+	      .split(tmpRowDelim).join(rowDelim)
+	      .split(tmpColDelim).join(colDelim);
+
+	    // Deliberate 'false', see comment below
+	    if (false && window.navigator.msSaveBlob) {
+
+	      var blob = new Blob([decodeURIComponent(csv)], {
+	        type: 'text/csv;charset=utf8'
+	      });
+
+	      // Crashes in IE 10, IE 11 and Microsoft Edge
+	      // See MS Edge Issue #10396033
+	      // Hence, the deliberate 'false'
+	      // This is here just for completeness
+	      // Remove the 'false' at your own risk
+	      window.navigator.msSaveBlob(blob, filename);
+
+	    } else if (window.Blob && window.URL) {
+	      // HTML5 Blob        
+	      var blob = new Blob([csv], {
+	        type: 'text/csv;charset=utf-8'
+	      });
+	      var csvUrl = URL.createObjectURL(blob);
+
+	      $(this)
+	        .attr({
+	          'download': filename,
+	          'href': csvUrl
+	        });
+	    } else {
+	      // Data URI
+	      var csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+	      $(this)
+	        .attr({
+	          'download': filename,
+	          'href': csvData,
+	          'target': '_blank'
+	        });
+	    }
+	  }
+
+	  // This must be a hyperlink
+	  $(".export").on('click', function(event) {
+	    // CSV
+  
+	var currentdate = new Date();
+
+	var datetime = currentdate.getDate() + ""
+	                + (currentdate.getMonth()+1)  + "" 
+	                + currentdate.getFullYear() + "_"  
+	                + currentdate.getHours() + ""  
+	                + currentdate.getMinutes() + "" 
+	                + currentdate.getSeconds();  
+	var args = [ $('#dvData>table'), 'StockPrice_'+datetime+'.csv' ];
+
+							exportTableToCSV.apply(this, args);
+
+							// If CSV, don't do event.preventDefault() or return false
+							// We actually need this to be a typical hyperlink
+						});
+			});
+</script>
+	<form id="refreshPage" class="form-signin" th:action="@{/refresh}"
+		th:object="${stockDto}" method="post">
+		<h1>Records Uploaded Successfully</h1>
+
+		<div id="dvData" th:if="${not #lists.isEmpty(stockDto)}">
+			
+			&nbsp&nbsp&nbsp&nbsp&nbsp <button id="pressButton" type="submit">Refresh Records Price</button>
+			<br>
+			<br>
+			
+			&nbsp&nbsp&nbsp&nbsp&nbsp<a href="#" class="export">Download Data into Excel</a>
+			<br>
+			<br>
+<!-- 			<H2 id="id01">Uploaded List</H2> -->
+			<table class="table table-stripped">
+				<tr>
+					<th><i><b>Symbol</b></i></th>
+					<th><i><b>Price</b></i></th>
+				</tr>
+				<tr th:each="stock,stat : ${stockDto}">
+					<td th:text="${stock.symbol}"></td>
+					<td th:text="${stock.price}"></td>
+				</tr>
+			</table>
+		</div>
+
+	</form>
+</body>
+</html>
